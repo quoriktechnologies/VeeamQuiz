@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Veeam Availability Suite v11 – Course Quiz</title>
+<style>
+:root{--bg:#f4f7f6;--card:#fff;--ink:#1f2933;--mut:#5b6770;--g:#00573f;--g2:#00a651;--gl:#e7f5ec;--bd:#d5dde1;--ok:#0b7a43;--okb:#e2f5ea;--no:#b3261e;--nob:#fce9e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181a;--card:#182225;--ink:#e6edef;--mut:#9fb0b6;--g:#4cc58a;--g2:#2fbf71;--gl:#1b3a2d;--bd:#2c3b40;--ok:#58d38f;--okb:#17372a;--no:#ff8f86;--nob:#3b1f1d}}
+:root[data-theme="dark"]{--bg:#10181a;--card:#182225;--ink:#e6edef;--mut:#9fb0b6;--g:#4cc58a;--g2:#2fbf71;--gl:#1b3a2d;--bd:#2c3b40;--ok:#58d38f;--okb:#17372a;--no:#ff8f86;--nob:#3b1f1d}
+html{height:100%}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:16px 16px 90px}
+header{background:#00573f;color:#fff;border-radius:14px;padding:22px 22px 18px;margin-bottom:16px}
+header h1{margin:0 0 4px;font-size:1.5rem}header p{margin:0;opacity:.9}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--bd);margin-bottom:12px}
+.bar .t{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mut);margin-bottom:5px}
+.track{height:8px;border-radius:6px;background:var(--bd);overflow:hidden}.fill{height:100%;width:0;background:var(--g2);transition:width .25s}
+.q{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:12px}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;color:var(--g);background:var(--gl);border-radius:20px;padding:2px 10px;margin-bottom:6px}
+.q h3{margin:0 0 10px;font-size:1.02rem;line-height:1.4}
+label{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid var(--bd);border-radius:9px;margin-bottom:7px;cursor:pointer}
+label:hover{border-color:var(--g2)}input{margin-top:4px;accent-color:var(--g2)}
+label.sel{background:var(--gl);border-color:var(--g2)}
+label.ok{background:var(--okb);border-color:var(--ok)}label.no{background:var(--nob);border-color:var(--no)}
+.fb{font-size:.9rem;margin-top:6px;font-weight:600}.fb.ok{color:var(--ok)}.fb.no{color:var(--no)}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:12px 22px;cursor:pointer;background:var(--g2);color:#fff}
+button.alt{background:transparent;color:var(--g);border:2px solid var(--g)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--g2);outline-offset:2px}
+.sub{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;justify-content:center;z-index:6}
+.res{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;margin-bottom:16px;text-align:center}
+.big{font-size:3rem;font-weight:800;color:var(--g);line-height:1.1}.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:14px;text-align:left}
+.m{border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font-size:.85rem}.m b{display:block}
+.hide{display:none}
+</style></head>
+<body><div class="wrap">
+<header><h1>Veeam Availability Suite v11 – Course Quiz</h1><p>60 questions · all 14 modules · one correct answer each. Answer options are shuffled every attempt.</p></header>
+<div id="res" class="hide"></div>
+<div class="bar"><div class="t"><span id="cnt">0 of 60 answered</span><span id="mode">Quiz in progress</span></div><div class="track"><div class="fill" id="fill"></div></div></div>
+<div id="qs"></div>
+<div class="sub"><button id="submit">Submit quiz</button><button id="retry" class="alt hide">Try again</button></div>
+</div>
+<script>
+// [module, question, correct answer first, ...distractors]
+const D=[
+[1,"Which definition matches RTO?","The time within which a system must be recovered after an outage","The point in time to which data must be recovered","The number of backup copies kept","The time between two backup runs"],
+[1,"What does the final “0” in 3-2-1-1-0 stand for?","Zero errors after automated backup testing and recoverability verification","Zero offsite copies","Zero tape drives needed","Zero downtime during the backup window"],
+[1,"Which part of 3-2-1-1-0 refers to an offline, air-gapped or immutable copy?","The second “1”","The “3”","The “2”","The “0”"],
+[1,"Backups run nightly at 22:00 and a disk fails at 15:00 the next day. What is the worst-case data loss?","About 17 hours","About 1 hour","About 5 hours","None, backups are continuous"],
+[2,"Which component schedules jobs and allocates resources?","Backup server","Backup proxy","Backup repository","Gateway server"],
+[2,"Which role processes jobs and delivers backup traffic between source and repository?","Backup proxy","Backup server","Veeam console","Cache repository"],
+[2,"Which repository types cannot host a Data Mover and therefore use a gateway server?","Shared folders, Dell EMC Data Domain and HPE StoreOnce","Windows repositories","Linux repositories","Scale-out performance extents on Linux"],
+[2,"What is data location tagging useful for?","GDPR / data sovereignty compliance","Faster backup compression","Tape library management","Increasing proxy throughput"],
+[3,"Which file extension is a forward incremental backup file?",".vib",".vbk",".vrb",".vbm"],
+[3,"A forward incremental chain with no periodic full backup becomes which method?","Forever forward incremental","Reverse incremental","Synthetic full","Active full"],
+[3,"What is a synthetic full backup?","A full backup built from backup files already on the repository","A full backup that re-reads all data from the production VM","A full backup stored only on tape","A copy of the configuration database"],
+[3,"Which backup method has the heaviest I/O impact on repository storage?","Reverse incremental","Forward incremental","Active full","Forever forward incremental"],
+[3,"The guest interaction proxy can be used for which guest operating systems?","Windows only","Linux only","Windows and Linux","Windows and macOS"],
+[3,"Which script type is supported for pre-freeze and post-thaw scripts on Linux guests?",".SH",".PS1",".BAT",".VBS"],
+[3,"What is a benefit of per-VM backup chains?","Separate write streams and separate backup files per VM","One single write stream for all VMs","Backups no longer need a repository","Forced active full every day"],
+[3,"BitLooker reduces backup size by zeroing out dirty blocks on which file system?","NTFS","ext4","VMFS","NFS"],
+[3,"In NAS backup, what does the cache repository store?","Checksums only, not the real file data","All file data from the share","VM snapshots","Tape catalogs"],
+[3,"Which transport mode attaches the disks of the processed VM to a proxy that is itself a VM?","Virtual appliance (HotAdd)","Direct SAN access","Network mode","Direct NFS access"],
+[3,"Which agent job type fits computers with a limited connection to the backup server?","A job managed by the agent","A job managed by the backup server","A SureBackup job","A tape job"],
+[3,"Agent backup jobs do NOT support which backup method?","Reverse incremental","Forward incremental","Forever forward incremental","Synthetic full"],
+[4,"Which replication direction is NOT supported?","vSphere to Hyper-V","vSphere to vSphere","Hyper-V to Hyper-V","vSphere to vSphere across a WAN"],
+[4,"What is true of a replica at rest according to the course?","It has no deduplication, compression or encryption","It is always compressed","It is always encrypted","It is stored as a .vbk file"],
+[4,"How many restore points can a VMware replica have (per the slide)?","28","47","7","999"],
+[4,"What does replica seeding use as its starting point?","Backups already in a repository at the DR site","Tape archives","The configuration backup","Cloud object storage only"],
+[4,"What is the minimum RPO for CDP short-term retention?","2 seconds","1 second","15 minutes","1 hour"],
+[4,"Why does CDP avoid VM stuns?","It does not use VMware snapshots (it uses an I/O filter)","It only runs at night","It uses tape","It copies whole VMs every second"],
+[5,"For which link speed is WAN accelerator low bandwidth mode intended?","Less than 100 Mbit/s","More than 100 Mbit/s","Only 10 Gbit/s links","Links with no latency"],
+[5,"What does immediate copy mode do?","Copies each restore point as soon as it appears on the source repository","Copies only once a week","Waits for the interval, then copies","Copies only GFS restore points"],
+[5,"Why is simple retention in a backup copy job limited to 999 restore points?","The chain contains only one full backup","Tape limits","A license restriction","Network limits"],
+[5,"Which tape entity distributes free tapes for writing data?","Media pool","Media vault","Backup set","Media set"],
+[5,"Which WAN accelerator feature uses digest files (fingerprints)?","Data deduplication","Global data caching","Tape export","Re-IP"],
+[6,"What can be moved to the capacity tier of a SOBR?","Only inactive backup chains","The active backup chain","Only full backups","Configuration backups"],
+[6,"What fixed period does Veeam add to the immutability period you set?","10 days","1 day","30 days","No extra period"],
+[6,"If an extent is in both maintenance and seal mode, which wins?","Maintenance mode overrides seal mode","Seal mode overrides maintenance mode","The extent is deleted","The mode applied last"],
+[6,"What does a hardened repository use to deny deletion of backups?","The Linux immutable flag","Windows ACLs only","A tape lock","Encryption keys"],
+[6,"Which method benefits from Fast Clone according to the course?","Forever forward incremental","Active full","Forward incremental","None of them"],
+[6,"Which storage can the archive tier use?","Amazon S3 Glacier and Azure Blob Archive tier","DAS only","NFS shares","Tape only"],
+[7,"What does Direct Restore enable?","Restoring on-premises backups straight to Azure or AWS","Backing up to tape","Replicating to another hypervisor","Indexing guest files"],
+[7,"What does a Veeam Cloud Connect customer manage?","No cloud resources – the service provider hosts them","The provider’s cloud gateway","The provider’s hypervisors","The provider’s licenses"],
+[7,"Which services does Veeam Backup for Microsoft Office 365 cover?","Exchange Online, SharePoint Online, OneDrive for Business and Teams","Only Exchange Online","Only OneDrive","Azure VMs"],
+[8,"Where are VM changes kept by default during Instant VM Recovery?","In redo logs on the vPower NFS server","On the production datastore","On tape","In the configuration database"],
+[8,"Which requirement applies to an incremental VM restore?","Restore to the original location with CBT enabled","Restore to a new location","CBT disabled","Only on Hyper-V"],
+[8,"What does instant file share recovery publish?","Read-only SMB shares from the backup repository","Writable NFS exports","Whole VMs","Tapes"],
+[8,"What is the purpose of a staged restore?","Modify data in an isolated lab before returning it to production","Restore tapes faster","Replace the backup server","Compress backups"],
+[9,"Which Veeam Explorer restores the original password of account objects?","Veeam Explorer for Microsoft Active Directory","Explorer for Exchange","Explorer for SharePoint","Explorer for Oracle"],
+[9,"How does Explorer for SQL Server restore to a specific point in time?","Transaction log replay","ARCHIVELOG replay","Storage snapshots","Quick migration"],
+[9,"Which option fits guest files on an unsupported file system?","Instant VM Recovery","Multi-OS file-level restore","Standard file-level restore","Table-level restore"],
+[10,"What happens to replica changes when you undo failover?","They are discarded","They are merged into the original VM","They are copied to tape","They become permanent"],
+[10,"What does commit failback do?","Finalizes recovery of the original VM and resumes replication","Discards the original VM","Starts a planned failover","Deletes the replica permanently"],
+[10,"What is a failover plan?","A preset one-click scenario with VM start order and delays","A backup schedule","A tape rotation","A SOBR policy"],
+[10,"Which feature is NOT available for CDP?","Planned failover","Failover and failback","Failover plan","Network throttling"],
+[11,"What does SureBackup do?","Automatically verifies recoverability by starting VMs in an isolated lab","Deletes old backups","Replicates VMs offsite","Migrates VMs to Azure"],
+[11,"Which tests are shown on the SureBackup architecture slide?","Heartbeat, Ping and App","CPU, RAM and Disk","Login, Logout and Reboot","Upload, Download and Sync"],
+[11,"What does optional backup file validation do?","Recalculates checksums and compares them with the initial values","Re-encrypts the backup","Compresses the backup","Moves the backup to the cloud"],
+[12,"Which are the Enterprise Manager roles on the slide?","Portal admin, Portal user, Restore operator","Admin, Guest, Auditor","Owner, Editor, Viewer","Operator, Tenant, Reader"],
+[12,"What must be enabled to search inside VM backups from Enterprise Manager?","Guest OS file system indexing","Per-VM backup chains","Immutability","Tape export"],
+[13,"The Veeam ONE Web Client was formerly called…","Reporter","Monitor","Collector","Analyzer"],
+[13,"What is Business View used for?","Categorizing infrastructure objects by business criteria such as department or SLA","Failover orchestration","Tape management","Agent deployment"],
+[14,"When is the Migrate mode of configuration restore used?","For a planned migration to a new backup server","After an unexpected loss of the backup server","To delete old restore points","To restore a single VM"],
+[14,"What should you do before starting a configuration restore?","Stop all running jobs","Delete all backups","Reboot the repository","Disable the console"]
+];
+const L=["A","B","C","D"];let Q=[],done=false;
+const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function build(){
+ done=false;Q=D.map(d=>{const c=d[2],o=sh(d.slice(2));return{m:d[0],q:d[1],o,a:o.indexOf(c),s:-1}});
+ const box=document.getElementById("qs");box.innerHTML="";
+ Q.forEach((q,i)=>{const s=document.createElement("section");s.className="q";s.id="q"+i;
+  s.innerHTML='<span class="tag">Module '+q.m+' · Question '+(i+1)+' of '+Q.length+'</span><h3></h3><div class="opts"></div><div class="fb"></div>';
+  s.querySelector("h3").textContent=q.q;const od=s.querySelector(".opts");
+  q.o.forEach((t,k)=>{const l=document.createElement("label");const r=document.createElement("input");r.type="radio";r.name="r"+i;
+   r.onchange=()=>{q.s=k;od.querySelectorAll("label").forEach((x,n)=>x.classList.toggle("sel",n===k));upd()};
+   const sp=document.createElement("span");sp.textContent=L[k]+". "+t;l.append(r,sp);od.append(l)});
+  box.append(s)});
+ document.getElementById("res").className="hide";document.getElementById("mode").textContent="Quiz in progress";
+ document.getElementById("submit").classList.remove("hide");document.getElementById("retry").classList.add("hide");upd();window.scrollTo(0,0)}
+function upd(){const n=Q.filter(q=>q.s>=0).length;document.getElementById("cnt").textContent=n+" of "+Q.length+" answered";document.getElementById("fill").style.width=(n/Q.length*100)+"%"}
+function submit(){
+ const un=Q.map((q,i)=>q.s<0?i:-1).filter(i=>i>=0);
+ if(un.length&&!confirm(un.length+" question(s) are unanswered and will count as incorrect. Submit anyway?")){document.getElementById("q"+un[0]).scrollIntoView({behavior:"smooth",block:"center"});return}
+ done=true;let sc=0;const pm={};
+ Q.forEach((q,i)=>{const ok=q.s===q.a;if(ok)sc++;(pm[q.m]=pm[q.m]||{c:0,t:0}).t++;if(ok)pm[q.m].c++;
+  const s=document.getElementById("q"+i);const ls=s.querySelectorAll("label");
+  ls.forEach((l,k)=>{l.classList.remove("sel");l.querySelector("input").disabled=true;if(k===q.a)l.classList.add("ok");else if(k===q.s)l.classList.add("no")});
+  const fb=s.querySelector(".fb");fb.className="fb "+(ok?"ok":"no");
+  fb.textContent=ok?"✔ Correct":(q.s<0?"✘ Not answered. ":"✘ Incorrect. ")+(ok?"":"Correct answer: "+L[q.a]+". "+q.o[q.a])});
+ const p=Math.round(sc/Q.length*100);let h='<div class="big">'+sc+' / '+Q.length+'</div><div style="font-size:1.2rem;font-weight:700">'+p+'%</div><p style="color:var(--mut);margin:6px 0 0">'+(p>=80?"Excellent work!":p>=60?"Good effort – review the questions marked incorrect below.":"Keep going – revisit the module notes and try again.")+'</p><div class="mods">';
+ Object.keys(pm).forEach(k=>h+='<div class="m"><b>Module '+k+'</b>'+pm[k].c+' / '+pm[k].t+'</div>');
+ const r=document.getElementById("res");r.innerHTML=h+"</div>";r.className="res";
+ document.getElementById("mode").textContent="Results – review answers below";document.getElementById("submit").classList.add("hide");document.getElementById("retry").classList.remove("hide");
+ window.scrollTo({top:0,behavior:"smooth"})}
+document.getElementById("submit").onclick=submit;document.getElementById("retry").onclick=build;build();
+</script></body></html>
